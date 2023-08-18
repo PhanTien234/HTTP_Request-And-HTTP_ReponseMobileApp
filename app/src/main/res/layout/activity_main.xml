@@ -1,33 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Root layout of our activity -->
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".MainActivity">
-    <!-- This ImageView is used to show the dog images to the user -->
-    <ImageView
-        android:id="@+id/dogImageView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/nextDogButton"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginHorizontal="6dp"
-        android:layout_marginBottom="10dp"
-        tools:srcCompat="@tools:sample/avatars" />
 
-    <!-- This Button is used for making a new HTTP request for fetching new dog image -->
+    <!--edit text field for adding name-->
+    <EditText
+        android:id="@+id/idEdtName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:layout_marginTop="40dp"
+        android:hint="Enter your name" />
+
+    <!--edit text for adding job-->
+    <EditText
+        android:id="@+id/idEdtJob"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:hint="Enter your job" />
+
+    <!--button for adding data-->
     <Button
-        android:id="@+id/nextDogButton"
+        android:id="@+id/idBtnPost"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:text="Send Data to API"
+        android:textAllCaps="false" />
+
+    <!--text view for displaying our API response-->
+    <TextView
+        android:id="@+id/idTVResponse"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:gravity="center_horizontal"
+        android:text="Response"
+        android:textAlignment="center"
+        android:textSize="15sp" />
+
+    <!--progress bar for loading -->
+    <ProgressBar
+        android:id="@+id/idLoadingPB"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Next Dog"
-        android:padding="12dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginBottom="30dp"/>
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
+</LinearLayout>

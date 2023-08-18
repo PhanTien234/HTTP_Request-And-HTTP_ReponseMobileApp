@@ -1,95 +1,127 @@
 package com.example.httprequandrepomobile;
 
 import android.os.Bundle;
-import android.util.Log;
+import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
+import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.bumptech.glide.Glide;
-import com.example.httprequandrepomobile.R;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class MainActivity extends AppCompatActivity {
 
-    // member variable for holding the ImageView
-    // in which images will be loaded
-    ImageView mDogImageView;
-    Button nextDogButton;
+    // creating variables for our edittext,
+    // button, textview and progressbar.
+    private EditText nameEdt, jobEdt;
+    private Button postDataBtn;
+    private TextView responseTV;
+    private ProgressBar loadingPB;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // initialize the ImageView and the Button
-        mDogImageView = findViewById(R.id.dogImageView);
-        nextDogButton = findViewById(R.id.nextDogButton);
+        // initializing our views
+        nameEdt = findViewById(R.id.idEdtName);
+        jobEdt = findViewById(R.id.idEdtJob);
+        postDataBtn = findViewById(R.id.idBtnPost);
+        responseTV = findViewById(R.id.idTVResponse);
+        loadingPB = findViewById(R.id.idLoadingPB);
 
-        // attaching on click listener to the button so that `loadDogImage()`
-        // function is called everytime after clicking it.
-        nextDogButton.setOnClickListener(View -> loadDogImage());
-
-        // image of a dog will be loaded once at the start of the app
-        loadDogImage();
+        // adding on click listener to our button.
+        postDataBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // validating if the text field is empty or not.
+                if (nameEdt.getText().toString().isEmpty() && jobEdt.getText().toString().isEmpty()) {
+                    Toast.makeText(MainActivity.this, "Please enter both the values", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                // calling a method to post the data and passing our name and job.
+                postDataUsingVolley(nameEdt.getText().toString(), jobEdt.getText().toString());
+            }
+        });
     }
 
-    // function for making a HTTP request using Volley and
-    // inserting the image in the ImageView using Glide library
-    private void loadDogImage() {
+    private void postDataUsingVolley(String name, String job) {
+        // url to post our data
+        String url = "https://reqres.in/api/users";
+        loadingPB.setVisibility(View.VISIBLE);
 
-        // getting a new volley request queue for making new requests
-        RequestQueue volleyQueue = Volley.newRequestQueue(MainActivity.this);
-        // url of the api through which we get random dog images
-        String url = "https://dog.ceo/api/breeds/image/random";
+        // creating a new variable for our request queue
+        RequestQueue queue = Volley.newRequestQueue(MainActivity.this);
 
-        // since the response we get from the api is in JSON, we
-        // need to use `JsonObjectRequest` for parsing the
-        // request response
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
-                // we are using GET HTTP request method
-                Request.Method.GET,
-                // url we want to send the HTTP request to
-                url,
-                // this parameter is used to send a JSON object to the
-                // server, since this is not required in our case,
-                // we are keeping it `null`
-                null,
+        // on below line we are calling a string
+        // request method to post the data to our API
+        // in this we are calling a post method.
+        StringRequest request = new StringRequest(Request.Method.POST, url, new com.android.volley.Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                // inside on response method we are
+                // hiding our progress bar
+                // and setting data to edit text as empty
+                loadingPB.setVisibility(View.GONE);
+                nameEdt.setText("");
+                jobEdt.setText("");
 
-                // lambda function for handling the case
-                // when the HTTP request succeeds
-                (Response.Listener<JSONObject>) response -> {
-                    // get the image url from the JSON object
-                    String dogImageUrl;
-                    try {
-                        dogImageUrl = response.getString("message");
-                        // load the image into the ImageView using Glide.
-                        Glide.with(MainActivity.this).load(dogImageUrl).into(mDogImageView);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                },
+                // on below line we are displaying a success toast message.
+                Toast.makeText(MainActivity.this, "Data added to API", Toast.LENGTH_SHORT).show();
+                try {
+                    // on below line we are parsing the response
+                    // to json object to extract data from it.
+                    JSONObject respObj = new JSONObject(response);
 
-                // lambda function for handling the case
-                // when the HTTP request fails
-                (Response.ErrorListener) error -> {
-                    // make a Toast telling the user
-                    // that something went wrong
-                    Toast.makeText(MainActivity.this, "Some error occurred! Cannot fetch dog image", Toast.LENGTH_LONG).show();
-                    // log the error message in the error stream
-                    Log.e("MainActivity", "loadDogImage error: ${error.localizedMessage}");
+                    // below are the strings which we
+                    // extract from our json object.
+                    String name = respObj.getString("name");
+                    String job = respObj.getString("job");
+
+                    // on below line we are setting this string s to our text view.
+                    responseTV.setText("Name : " + name + "\n" + "Job : " + job);
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-        );
+            }
+        }, new com.android.volley.Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                // method to handle errors.
+                Toast.makeText(MainActivity.this, "Fail to get response = " + error, Toast.LENGTH_SHORT).show();
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() {
+                // below line we are creating a map for
+                // storing our values in key and value pair.
+                Map<String, String> params = new HashMap<String, String>();
 
-        // add the json request object created above
-        // to the Volley request queue
-        volleyQueue.add(jsonObjectRequest);
+                // on below line we are passing our key
+                // and value pair to our parameters.
+                params.put("name", name);
+                params.put("job", job);
+
+                // at last we are
+                // returning our params.
+                return params;
+            }
+        };
+        // below line is to make
+        // a json object request.
+        queue.add(request);
     }
 }
